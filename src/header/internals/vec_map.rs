@@ -13,10 +13,19 @@ impl<K: PartialEq, V> VecMap<K, V> {
 
     #[inline]
     pub fn insert(&mut self, key: K, value: V) {
+        for entry in &mut self.vec {
+            if key == entry.0 {
+                *entry = (key, value);
+                return;
+            }
+        }
+        self.vec.push((key, value));
+        /*
         match self.find(&key) {
             Some(pos) => self.vec[pos] = (key, value),
             None => self.vec.push((key, value))
         }
+        */
     }
 
     #[inline]
@@ -40,7 +49,13 @@ impl<K: PartialEq, V> VecMap<K, V> {
 
     #[inline]
     pub fn get<K2: PartialEq<K> + ?Sized>(&self, key: &K2) -> Option<&V> {
-        self.find(key).map(move |pos| &self.vec[pos].1)
+        for entry in &self.vec {
+            if key == &entry.0 {
+                return Some(&entry.1);
+            }
+        }
+        None
+        //self.find(key).map(move |pos| &self.vec[pos].1)
     }
 
     #[inline]
@@ -75,7 +90,6 @@ impl<K: PartialEq, V> VecMap<K, V> {
             }
         }
     }
-
 
     #[inline]
     pub fn clear(&mut self) {
